@@ -1,18 +1,18 @@
-<header>
-    <nav class="navbar">
-        <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
-        <ul class="nav-links">
-            <% if (isAuthenticated) { %>
-                <li><a href="/admin/dashboard">Dashboard</a></li>
-                <li><a href="/vehicles">Vehicles</a></li>
-                <% if (user && user.role === 'admin') { %>
-                    <li><a href="/admin/users">Users</a></li>
-                    <li><a href="/auth/register">Create User</a></li>
-                <% } %>
-                <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
-            <% } else { %>
-                <li><a href="/auth/login">Login</a></li>
+<nav class="navbar">
+    <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
+    <ul class="nav-links">
+        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/vehicles">Vehicles</a></li>
+            <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+                <li><a href="/admin/users">Users</a></li>
+                <li><a href="/auth/register">Create User</a></li>
             <% } %>
-        </ul>
-    </nav>
-</header>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
+            <% } %>
+        <% } else { %>
+            <li><a href="/auth/login">Login</a></li>
+        <% } %>
+    </ul>
+</nav>

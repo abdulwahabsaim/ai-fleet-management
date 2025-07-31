@@ -5,8 +5,8 @@ module.exports = {
     // Show login form
     showLoginPage: (req, res) => {
         res.render('auth/login', {
-            error_msg: req.flash('error_msg'),
-            success_msg: req.flash('success_msg')
+            title: 'Login'
+            // success_msg and error_msg are available via res.locals
         });
     },
 
@@ -37,8 +37,8 @@ module.exports = {
     // Show registration form
     showRegisterPage: (req, res) => {
         res.render('auth/register', {
-            error_msg: req.flash('error_msg'),
-            success_msg: req.flash('success_msg')
+            title: 'Create User'
+            // success_msg and error_msg are available via res.locals
         });
     },
 

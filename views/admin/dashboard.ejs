@@ -3,472 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - AI Fleet Management</title>
-    
-    <!-- Material Design Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Material Design Components -->
-    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Socket.IO -->
-    <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Admin Dashboard | AI Fleet Management</title>
 </head>
-<body class="mdc-typography">
-    <!-- Top App Bar -->
-    <header class="mdc-top-app-bar mdc-top-app-bar--fixed">
-        <div class="mdc-top-app-bar__row">
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button" 
-                        aria-label="Open navigation menu" id="menu-toggle">
-                    menu
-                </button>
-                <span class="mdc-top-app-bar__title">
-                    <i class="material-icons" style="margin-right: 8px;">directions_car</i>
-                    AI Fleet Management
-                </span>
-            </section>
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-                <!-- Notifications -->
-                <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" 
-                        aria-label="Notifications" id="notifications-btn">
-                    notifications
-                </button>
-                
-                <!-- User Menu -->
-                <div class="mdc-menu-surface--anchor">
-                    <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" 
-                            aria-label="User menu" id="user-menu-btn">
-                        account_circle
-                    </button>
-                    <div class="mdc-menu mdc-menu-surface" id="user-menu">
-                        <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1">
-                            <li class="mdc-list-item" role="menuitem">
-                                <span class="mdc-list-item__ripple"></span>
-                                <span class="mdc-list-item__text">Profile</span>
-                            </li>
-                            <li class="mdc-list-item" role="menuitem">
-                                <span class="mdc-list-item__ripple"></span>
-                                <span class="mdc-list-item__text">Settings</span>
-                            </li>
-                            <li class="mdc-list-divider" role="separator"></li>
-                            <li class="mdc-list-item" role="menuitem">
-                                <span class="mdc-list-item__ripple"></span>
-                                <span class="mdc-list-item__text">
-                                    <a href="/auth/logout" style="text-decoration: none; color: inherit;">Logout</a>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
         </div>
-    </header>
-
-    <!-- Navigation Drawer -->
-    <aside class="mdc-drawer mdc-drawer--dismissible mdc-top-app-bar--fixed-adjust" id="navigation-drawer">
-        <div class="mdc-drawer__header">
-            <h3 class="mdc-drawer__title">Navigation</h3>
-            <h6 class="mdc-drawer__subtitle">
-                <% if (typeof user !== 'undefined' && user) { %>
-                    Welcome, <%= user.username %>
-                <% } %>
-            </h6>
-        </div>
-        <div class="mdc-drawer__content">
-            <nav class="mdc-list">
-                <a class="mdc-list-item mdc-list-item--activated" href="/admin/dashboard" aria-current="page">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>
-                    <span class="mdc-list-item__text">Dashboard</span>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/admin/dashboard" class="sidebar-menu-item active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a class="mdc-list-item" href="/vehicles">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">directions_car</i>
-                    <span class="mdc-list-item__text">Vehicles</span>
+                <a href="/vehicles" class="sidebar-menu-item">
+                    <i class="fas fa-car"></i> Vehicles
                 </a>
-                <a class="mdc-list-item" href="/routes">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">map</i>
-                    <span class="mdc-list-item__text">Routes</span>
-                </a>
-                <a class="mdc-list-item" href="/trips">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">navigation</i>
-                    <span class="mdc-list-item__text">Trips</span>
-                </a>
-                <a class="mdc-list-item" href="/maintenance">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">build</i>
-                    <span class="mdc-list-item__text">Maintenance</span>
-                </a>
-                <a class="mdc-list-item" href="/drivers">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>
-                    <span class="mdc-list-item__text">Drivers</span>
-                </a>
-                <a class="mdc-list-item" href="/analytics">
-                    <span class="mdc-list-item__ripple"></span>
-                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">analytics</i>
-                    <span class="mdc-list-item__text">Analytics</span>
-                </a>
-                
-                <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-                    <hr class="mdc-list-divider">
-                    <h6 class="mdc-list-group__subheader">Admin</h6>
-                    <a class="mdc-list-item" href="/admin/dashboard">
-                        <span class="mdc-list-item__ripple"></span>
-                        <i class="material-icons mdc-list-item__graphic" aria-hidden="true">admin_panel_settings</i>
-                        <span class="mdc-list-item__text">Admin Dashboard</span>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
                     </a>
-                    <a class="mdc-list-item" href="/admin/users">
-                        <span class="mdc-list-item__ripple"></span>
-                        <i class="material-icons mdc-list-item__graphic" aria-hidden="true">people</i>
-                        <span class="mdc-list-item__text">Users</span>
+                    <a href="/auth/register" class="sidebar-menu-item">
+                        <i class="fas fa-user-plus"></i> Create User
                     </a>
                 <% } %>
-            </nav>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content" id="main-content">
-        <div class="mdc-top-app-bar--fixed-adjust">
-            <!-- Flash Messages -->
-            <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
-                <div class="mdc-snackbar" id="success-snackbar">
-                    <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
-                        <div class="mdc-snackbar__label" aria-atomic="false">
-                            <%= success_msg %>
-                        </div>
-                        <div class="mdc-snackbar__actions" aria-atomic="true">
-                            <button type="button" class="mdc-button mdc-snackbar__action">
-                                <div class="mdc-button__ripple"></div>
-                                <span class="mdc-button__label">Dismiss</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             <% } %>
-
-            <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
-                <div class="mdc-snackbar" id="error-snackbar">
-                    <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
-                        <div class="mdc-snackbar__label" aria-atomic="false">
-                            <%= error_msg %>
-                        </div>
-                        <div class="mdc-snackbar__actions" aria-atomic="true">
-                            <button type="button" class="mdc-button mdc-snackbar__action">
-                                <div class="mdc-button__ripple"></div>
-                                <span class="mdc-button__label">Dismiss</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-
-            <!-- Page Content -->
-            <div class="container">
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1 class="page-title">
-                        <i class="material-icons">admin_panel_settings</i>
-                        Admin Dashboard
-                    </h1>
-                    <p class="page-subtitle">Fleet management overview and system statistics</p>
-                </div>
-
-                <!-- Stats Overview -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card__icon stat-card__icon--primary">
-                            <i class="material-icons">directions_car</i>
-                        </div>
-                        <div class="stat-card__content">
-                            <div class="stat-card__value"><%= totalVehicles %></div>
-                            <div class="stat-card__label">Total Vehicles</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-card__icon stat-card__icon--success">
-                            <i class="material-icons">check_circle</i>
-                        </div>
-                        <div class="stat-card__content">
-                            <div class="stat-card__value"><%= activeVehicles %></div>
-                            <div class="stat-card__label">Active Vehicles</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-card__icon stat-card__icon--warning">
-                            <i class="material-icons">build</i>
-                        </div>
-                        <div class="stat-card__content">
-                            <div class="stat-card__value"><%= inMaintenanceVehicles %></div>
-                            <div class="stat-card__label">In Maintenance</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-card__icon stat-card__icon--info">
-                            <i class="material-icons">people</i>
-                        </div>
-                        <div class="stat-card__content">
-                            <div class="stat-card__value"><%= totalUsers %></div>
-                            <div class="stat-card__label">Total Users</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dashboard Grid -->
-                <div class="dashboard-grid">
-                    <!-- Fleet Overview Card -->
-                    <div class="dashboard-card">
-                        <div class="dashboard-card__header">
-                            <div class="dashboard-card__title">
-                                <i class="material-icons dashboard-card__icon dashboard-card__icon--primary">fleet_management</i>
-                                Fleet Overview
-                            </div>
-                        </div>
-                        <div class="dashboard-card__content">
-                            <div class="fleet-stats">
-                                <div class="fleet-stat">
-                                    <span class="fleet-stat__label">Available:</span>
-                                    <span class="fleet-stat__value"><%= activeVehicles %></span>
-                                </div>
-                                <div class="fleet-stat">
-                                    <span class="fleet-stat__label">On Trip:</span>
-                                    <span class="fleet-stat__value"><%= onTripVehicles || 0 %></span>
-                                </div>
-                                <div class="fleet-stat">
-                                    <span class="fleet-stat__label">Maintenance:</span>
-                                    <span class="fleet-stat__value"><%= inMaintenanceVehicles %></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- System Health Card -->
-                    <div class="dashboard-card">
-                        <div class="dashboard-card__header">
-                            <div class="dashboard-card__title">
-                                <i class="material-icons dashboard-card__icon dashboard-card__icon--success">health_and_safety</i>
-                                System Health
-                            </div>
-                        </div>
-                        <div class="dashboard-card__content">
-                            <div class="health-indicators">
-                                <div class="health-indicator">
-                                    <div class="health-indicator__label">Database</div>
-                                    <div class="health-indicator__status health-indicator__status--healthy">
-                                        <i class="material-icons">check_circle</i>
-                                        Connected
-                                    </div>
-                                </div>
-                                <div class="health-indicator">
-                                    <div class="health-indicator__label">API Services</div>
-                                    <div class="health-indicator__status health-indicator__status--healthy">
-                                        <i class="material-icons">check_circle</i>
-                                        Operational
-                                    </div>
-                                </div>
-                                <div class="health-indicator">
-                                    <div class="health-indicator__label">Real-time Updates</div>
-                                    <div class="health-indicator__status health-indicator__status--healthy">
-                                        <i class="material-icons">check_circle</i>
-                                        Active
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity Card -->
-                    <div class="dashboard-card">
-                        <div class="dashboard-card__header">
-                            <div class="dashboard-card__title">
-                                <i class="material-icons dashboard-card__icon dashboard-card__icon--info">timeline</i>
-                                Recent Activity
-                            </div>
-                        </div>
-                        <div class="dashboard-card__content">
-                            <div class="activity-list">
-                                <div class="activity-item">
-                                    <div class="activity-item__icon">
-                                        <i class="material-icons">person_add</i>
-                                    </div>
-                                    <div class="activity-item__content">
-                                        <div class="activity-item__title">New user registered</div>
-                                        <div class="activity-item__time">2 minutes ago</div>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-item__icon">
-                                        <i class="material-icons">directions_car</i>
-                                    </div>
-                                    <div class="activity-item__content">
-                                        <div class="activity-item__title">Vehicle maintenance completed</div>
-                                        <div class="activity-item__time">15 minutes ago</div>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-item__icon">
-                                        <i class="material-icons">route</i>
-                                    </div>
-                                    <div class="activity-item__content">
-                                        <div class="activity-item__title">New route optimized</div>
-                                        <div class="activity-item__time">1 hour ago</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions Card -->
-                    <div class="dashboard-card">
-                        <div class="dashboard-card__header">
-                            <div class="dashboard-card__title">
-                                <i class="material-icons dashboard-card__icon dashboard-card__icon--primary">speed</i>
-                                Quick Actions
-                            </div>
-                        </div>
-                        <div class="dashboard-card__content">
-                            <div class="quick-actions">
-                                <a href="/vehicles/add" class="btn btn--primary">
-                                    <i class="material-icons">add</i>
-                                    Add Vehicle
-                                </a>
-                                <a href="/auth/register" class="btn btn--secondary">
-                                    <i class="material-icons">person_add</i>
-                                    Create User
-                                </a>
-                                <a href="/routes" class="btn btn--secondary">
-                                    <i class="material-icons">map</i>
-                                    Manage Routes
-                                </a>
-                                <a href="/admin/users" class="btn btn--secondary">
-                                    <i class="material-icons">people</i>
-                                    User Management
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Vehicle Locations Map -->
-                <div class="dashboard-card mt-4">
-                    <div class="dashboard-card__header">
-                        <div class="dashboard-card__title">
-                            <i class="material-icons dashboard-card__icon dashboard-card__icon--info">location_on</i>
-                            Vehicle Locations
-                        </div>
-                    </div>
-                    <div class="dashboard-card__content">
-                        <div id="map" style="height: 400px; width: 100%; border-radius: 8px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                            <div class="map-placeholder">
-                                <i class="material-icons" style="font-size: 48px; color: #ccc;">map</i>
-                                <p>Map loading...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Notifications Panel -->
-    <div class="mdc-menu-surface--anchor">
-        <div class="mdc-menu mdc-menu-surface" id="notifications-menu">
-            <div class="notifications-header">
-                <h6>Notifications</h6>
-                <button class="mdc-icon-button material-icons" id="clear-notifications">
-                    clear_all
-                </button>
-            </div>
-            <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1" id="notifications-list">
-                <!-- Notifications will be populated here -->
-            </ul>
         </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div class="loading-overlay" id="loading-overlay" style="display: none;">
-        <div class="mdc-circular-progress" style="width: 48px; height: 48px;" role="progressbar" aria-label="Loading">
-            <div class="mdc-circular-progress__determinate-container">
-                <svg class="mdc-circular-progress__determinate-circle-graphic" viewBox="0 0 48 48">
-                    <circle class="mdc-circular-progress__determinate-track" cx="24" cy="24" r="18" stroke-width="4"/>
-                    <circle class="mdc-circular-progress__determinate-circle" cx="24" cy="24" r="18" stroke-width="4"/>
-                </svg>
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Admin Dashboard
             </div>
-            <div class="mdc-circular-progress__indeterminate-container">
-                <div class="mdc-circular-progress__spinner-layer">
-                    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">
-                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
-                        </svg>
-                    </div>
-                    <div class="mdc-circular-progress__gap-patch">
-                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
-                        </svg>
-                    </div>
-                    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">
-                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
-                        </svg>
-                    </div>
-                </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
             </div>
         </div>
-    </div>
 
-    <!-- Material Design Components JS -->
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-
-    <!-- Custom JS -->
-    <script src="/js/main.js"></script>
-    <script src="/js/map.js"></script>
-    
-    <script>
-        // Initialize Material Design Components
-        mdc.autoInit();
-        
-        // Initialize Socket.IO
-        const socket = io();
-        
-        // Join user room if logged in
-        <% if (typeof user !== 'undefined' && user) { %>
-            socket.emit('join', '<%= user._id %>');
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="flash-message error"><%= error_msg %></div>
         <% } %>
-        
-        // Handle real-time updates
-        socket.on('vehicleLocationUpdate', (data) => {
-            // Update vehicle location on map
-            if (window.updateVehicleLocation) {
-                window.updateVehicleLocation(data);
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+            <p class="page-subtitle">Fleet management overview and system statistics</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-car stat-card-icon"></i>
+                <div class="stat-card-value"><%= totalVehicles %></div>
+                <div class="stat-card-label">Total Vehicles</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-check-circle stat-card-icon"></i>
+                <div class="stat-card-value"><%= activeVehicles %></div>
+                <div class="stat-card-label">Active Vehicles</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-tools stat-card-icon"></i>
+                <div class="stat-card-value"><%= inMaintenanceVehicles %></div>
+                <div class="stat-card-label">In Maintenance</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-route stat-card-icon"></i>
+                <div class="stat-card-value"><%= onTripVehicles %></div>
+                <div class="stat-card-label">On Trip</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-users stat-card-icon"></i>
+                <div class="stat-card-value"><%= totalUsers %></div>
+                <div class="stat-card-label">Total Users</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Fleet Status</h2>
+            </div>
+            <div class="card-body">
+                <div id="map" style="height: 400px; background-color: #2c2c2c; border-radius: var(--border-radius); display: flex; justify-content: center; align-items: center;">
+                    <div style="text-align: center;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--primary-light); margin-bottom: 1rem;"></i>
+                        <p>Map will be displayed here with vehicle locations</p>
+                        <p style="color: var(--text-secondary-dark); font-size: 0.9rem;">API key required for Google Maps integration</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Recent Activity</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Vehicle</th>
+                                <th>User</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Maintenance Completed</td>
+                                <td>Toyota Corolla (ABC-123)</td>
+                                <td>admin</td>
+                                <td><%= new Date().toLocaleDateString() %></td>
+                                <td><span class="status-indicator status-indicator--active">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Trip Started</td>
+                                <td>Honda Civic (XYZ-789)</td>
+                                <td>driver1</td>
+                                <td><%= new Date().toLocaleDateString() %></td>
+                                <td><span class="status-indicator status-indicator--on-trip">In Progress</span></td>
+                            </tr>
+                            <tr>
+                                <td>Vehicle Added</td>
+                                <td>Ford Focus (DEF-456)</td>
+                                <td>admin</td>
+                                <td><%= new Date().toLocaleDateString() %></td>
+                                <td><span class="status-indicator status-indicator--active">Success</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Initialize map when API is available
+        function initMap() {
+            if (typeof google !== 'undefined') {
+                const mapElement = document.getElementById('map');
+                const map = new google.maps.Map(mapElement, {
+                    center: { lat: 0, lng: 0 },
+                    zoom: 2,
+                    styles: [
+                        { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                        { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                        { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                        {
+                            featureType: "administrative.locality",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                        },
+                        {
+                            featureType: "poi",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                        },
+                        {
+                            featureType: "poi.park",
+                            elementType: "geometry",
+                            stylers: [{ color: "#263c3f" }],
+                        },
+                        {
+                            featureType: "poi.park",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#6b9a76" }],
+                        },
+                        {
+                            featureType: "road",
+                            elementType: "geometry",
+                            stylers: [{ color: "#38414e" }],
+                        },
+                        {
+                            featureType: "road",
+                            elementType: "geometry.stroke",
+                            stylers: [{ color: "#212a37" }],
+                        },
+                        {
+                            featureType: "road",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#9ca5b3" }],
+                        },
+                        {
+                            featureType: "road.highway",
+                            elementType: "geometry",
+                            stylers: [{ color: "#746855" }],
+                        },
+                        {
+                            featureType: "road.highway",
+                            elementType: "geometry.stroke",
+                            stylers: [{ color: "#1f2835" }],
+                        },
+                        {
+                            featureType: "road.highway",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#f3d19c" }],
+                        },
+                        {
+                            featureType: "transit",
+                            elementType: "geometry",
+                            stylers: [{ color: "#2f3948" }],
+                        },
+                        {
+                            featureType: "transit.station",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                        },
+                        {
+                            featureType: "water",
+                            elementType: "geometry",
+                            stylers: [{ color: "#17263c" }],
+                        },
+                        {
+                            featureType: "water",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#515c6d" }],
+                        },
+                        {
+                            featureType: "water",
+                            elementType: "labels.text.stroke",
+                            stylers: [{ color: "#17263c" }],
+                        },
+                    ],
+                });
+                
+                // Add vehicle markers if data is available
+                const vehicles = <% if (typeof vehiclesForMap !== 'undefined') { %><%= vehiclesForMap %><% } else { %>[]<% } %>;
+                
+                if (vehicles && vehicles.length > 0) {
+                    vehicles.forEach(vehicle => {
+                        if (vehicle.location && vehicle.location.lat && vehicle.location.lng) {
+                            const marker = new google.maps.Marker({
+                                position: { lat: vehicle.location.lat, lng: vehicle.location.lng },
+                                map: map,
+                                title: `${vehicle.make} ${vehicle.model} (${vehicle.licensePlate})`,
+                                icon: {
+                                    path: google.maps.SymbolPath.CIRCLE,
+                                    scale: 8,
+                                    fillColor: vehicle.status === 'active' ? '#28a745' : 
+                                            vehicle.status === 'in_maintenance' ? '#ffc107' : 
+                                            vehicle.status === 'on_trip' ? '#17a2b8' : '#6c757d',
+                                    fillOpacity: 1,
+                                    strokeWeight: 1,
+                                    strokeColor: '#ffffff'
+                                }
+                            });
+                        }
+                    });
+                }
             }
-        });
-        
-        socket.on('maintenanceAlert', (data) => {
-            // Show maintenance alert notification
-            showNotification(data.message, 'warning');
-        });
+        }
     </script>
 
-    <script id="vehicles-for-map-data" type="application/json"><%- vehiclesForMap %></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap"></script>
+    <% if (typeof googleMapsApiKey !== 'undefined' && googleMapsApiKey) { %>
+        <script src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap" async defer></script>
+    <% } %>
 </body>
 </html>

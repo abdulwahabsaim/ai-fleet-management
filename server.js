@@ -83,12 +83,27 @@ app.use(flash());
 const { setUser } = require('./middleware/authMiddleware');
 app.use(setUser); // Make user and isAuthenticated available to all EJS templates
 
-// Global variables for flash messages (so they are available in all templates)
+// Global variables for flash messages and current path (so they are available in all templates)
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
+    res.locals.path = req.path;
+    res.locals.pageTitle = getPageTitle(req.path);
     next();
 });
+
+// Helper function to get page title based on path
+function getPageTitle(path) {
+    if (path === '/admin/dashboard') return 'Admin Dashboard';
+    if (path === '/dashboard') return 'Fleet Dashboard';
+    if (path === '/vehicles') return 'Vehicle Management';
+    if (path.includes('/vehicles/add')) return 'Add Vehicle';
+    if (path.includes('/vehicles/edit')) return 'Edit Vehicle';
+    if (path === '/admin/users') return 'User Management';
+    if (path === '/auth/register') return 'Create User';
+    if (path === '/auth/login') return 'Login';
+    return 'AI Fleet Management';
+}
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -154,11 +169,9 @@ app.get('/dashboard', (req, res) => {
             res.redirect('/admin/dashboard');
         } else {
             // Render the generic dashboard specific for non-admin users
-            res.render('generic_dashboard', { // NO layout option here
-                title: 'Fleet Manager Dashboard',
-                // user is available via res.locals.user due to setUser middleware
-                success_msg: req.flash('success_msg'),
-                error_msg: req.flash('error_msg')
+            res.render('generic_dashboard', {
+                title: 'Fleet Manager Dashboard'
+                // user, path, pageTitle, success_msg, and error_msg are available via res.locals
             });
         }
     } else {

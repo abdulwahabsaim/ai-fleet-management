@@ -3,66 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>Create New User | AI Fleet Management</title>
+    <title>Create User | AI Fleet Management</title>
 </head>
 <body>
-    <!-- ================== ADDED HEADER ================== -->
-    <header>
-        <nav class="navbar">
-            <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
-            <ul class="nav-links">
-                <% if (isAuthenticated) { %>
-                    <!-- This ensures the full navbar shows if an admin is creating a user -->
-                    <li><a href="/admin/dashboard">Dashboard</a></li>
-                    <li><a href="/vehicles">Vehicles</a></li>
-                    <li><a href="/admin/users">Users</a></li>
-                    <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/admin/dashboard" class="sidebar-menu-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/vehicles" class="sidebar-menu-item">
+                    <i class="fas fa-car"></i> Vehicles
+                </a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/auth/register" class="sidebar-menu-item active">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
                 <% } %>
-            </ul>
-        </nav>
-    </header>
-    <!-- ================================================== -->
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            <% } %>
+        </div>
+    </div>
 
-    <div class="container" style="max-width: 500px; margin-top: 50px;">
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Create User
+            </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
+            </div>
+        </div>
+
         <% if (locals.error_msg && error_msg.length > 0) { %>
             <div class="flash-message error"><%= error_msg %></div>
         <% } %>
-        
-        <h1>Create New User</h1>
-        <form action="/auth/register" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Create Password" minlength="6" required>
-            </div>
-            <div class="form-group">
-                <label for="password2">Confirm Password</label>
-                <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirm Password" required>
-            </div>
-            <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role" class="form-control" required>
-                    <option value="fleet_manager">Fleet Manager</option>
-                    <option value="driver">Driver</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-success btn-block">Create User</button>
-             <a href="/admin/users" class="btn btn-secondary btn-block" style="text-align: center; margin-top: 10px;">Cancel</a>
-        </form>
-    </div>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
 
-    <!-- ================== ADDED FOOTER ================== -->
-    <footer>
-        <div class="container">
-            <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-user-plus"></i> Create New User</h1>
+            <p class="page-subtitle">Add a new user to the system</p>
         </div>
-    </footer>
-    <!-- ================================================== -->
+
+        <div class="card">
+            <div class="card-body">
+                <form action="/auth/register" method="POST" class="form-container" style="max-width: 100%;">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Create password" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password2" class="form-label">Confirm Password</label>
+                        <input type="password" id="password2" name="password2" class="form-input" placeholder="Confirm password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role" class="form-label">Role</label>
+                        <select id="role" name="role" class="form-input" required>
+                            <option value="fleet_manager">Fleet Manager</option>
+                            <option value="driver">Driver</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn--success">Create User</button>
+                        <a href="/admin/users" class="btn btn--secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="/js/main.js"></script>
 </body>

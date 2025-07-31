@@ -3,83 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>Edit Vehicle | AI Fleet Management</title>
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
-            <ul class="nav-links">
-                <% if (isAuthenticated) { %>
-                    <li><a href="/admin/dashboard">Dashboard</a></li>
-                    <li><a href="/vehicles">Vehicles</a></li>
-                    <% if (user && user.role === 'admin') { %>
-                        <li><a href="/admin/users">Users</a></li>
-                        <li><a href="/auth/register">Create User</a></li>
-                    <% } %>
-                    <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
-                <% } else { %>
-                    <li><a href="/auth/login">Login</a></li>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/admin/dashboard" class="sidebar-menu-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/vehicles" class="sidebar-menu-item active">
+                    <i class="fas fa-car"></i> Vehicles
+                </a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/auth/register" class="sidebar-menu-item">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
                 <% } %>
-            </ul>
-        </nav>
-    </header>
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            <% } %>
+        </div>
+    </div>
 
-    <div class="container">
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Edit Vehicle
+            </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
+            </div>
+        </div>
+
         <% if (locals.error_msg && error_msg.length > 0) { %>
             <div class="flash-message error"><%= error_msg %></div>
         <% } %>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
 
-        <h1>Edit Vehicle: <%= vehicle.make %> <%= vehicle.model %></h1>
-        <form action="/vehicles/edit/<%= vehicle._id %>" method="POST">
-            <div class="form-group">
-                <label for="make">Make</label>
-                <input type="text" id="make" name="make" class="form-control" value="<%= vehicle.make %>" required>
-            </div>
-            <div class="form-group">
-                <label for="model">Model</label>
-                <input type="text" id="model" name="model" class="form-control" value="<%= vehicle.model %>" required>
-            </div>
-            <div class="form-group">
-                <label for="year">Year</label>
-                <input type="number" id="year" name="year" class="form-control" value="<%= vehicle.year %>" required>
-            </div>
-            <div class="form-group">
-                <label for="vin">VIN (17 characters)</label>
-                <input type="text" id="vin" name="vin" class="form-control" value="<%= vehicle.vin %>" required maxlength="17" minlength="17">
-            </div>
-            <div class="form-group">
-                <label for="licensePlate">License Plate</label>
-                <input type="text" id="licensePlate" name="licensePlate" class="form-control" value="<%= vehicle.licensePlate %>" required>
-            </div>
-            <div class="form-group">
-                <label for="capacity">Capacity (e.g., kg)</label>
-                <input type="number" id="capacity" name="capacity" class="form-control" value="<%= vehicle.capacity %>">
-            </div>
-            <div class="form-group">
-                <label for="currentMileage">Current Mileage</label>
-                <input type="number" id="currentMileage" name="currentMileage" class="form-control" min="0" value="<%= vehicle.currentMileage %>">
-            </div>
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status" name="status" class="form-control" required>
-                    <option value="active" <%= vehicle.status === 'active' ? 'selected' : '' %>>Active</option>
-                    <option value="inactive" <%= vehicle.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                    <option value="in_maintenance" <%= vehicle.status === 'in_maintenance' ? 'selected' : '' %>>In Maintenance</option>
-                    <option value="on_trip" <%= vehicle.status === 'on_trip' ? 'selected' : '' %>>On Trip</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Vehicle</button>
-            <a href="/vehicles" class="btn btn-secondary">Cancel</a>
-        </form>
-    </div>
-
-    <footer>
-        <div class="container">
-            <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-edit"></i> Edit Vehicle</h1>
+            <p class="page-subtitle"><%= vehicle.make %> <%= vehicle.model %> (<%= vehicle.licensePlate %>)</p>
         </div>
-    </footer>
+
+        <div class="card">
+            <div class="card-body">
+                <form action="/vehicles/edit/<%= vehicle._id %>" method="POST" class="form-container" style="max-width: 100%;">
+                    <div class="form-group">
+                        <label for="make" class="form-label">Make</label>
+                        <input type="text" id="make" name="make" class="form-input" value="<%= vehicle.make %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model" class="form-label">Model</label>
+                        <input type="text" id="model" name="model" class="form-input" value="<%= vehicle.model %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="year" class="form-label">Year</label>
+                        <input type="number" id="year" name="year" class="form-input" value="<%= vehicle.year %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vin" class="form-label">VIN (17 characters)</label>
+                        <input type="text" id="vin" name="vin" class="form-input" value="<%= vehicle.vin %>" required maxlength="17" minlength="17">
+                    </div>
+                    <div class="form-group">
+                        <label for="licensePlate" class="form-label">License Plate</label>
+                        <input type="text" id="licensePlate" name="licensePlate" class="form-input" value="<%= vehicle.licensePlate %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="capacity" class="form-label">Capacity (e.g., kg)</label>
+                        <input type="number" id="capacity" name="capacity" class="form-input" value="<%= vehicle.capacity %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="currentMileage" class="form-label">Current Mileage</label>
+                        <input type="number" id="currentMileage" name="currentMileage" class="form-input" min="0" value="<%= vehicle.currentMileage %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-input" required>
+                            <option value="active" <%= vehicle.status === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%= vehicle.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                            <option value="in_maintenance" <%= vehicle.status === 'in_maintenance' ? 'selected' : '' %>>In Maintenance</option>
+                            <option value="on_trip" <%= vehicle.status === 'on_trip' ? 'selected' : '' %>>On Trip</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn--primary">Update Vehicle</button>
+                        <a href="/vehicles" class="btn btn--secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="/js/main.js"></script>
 </body>

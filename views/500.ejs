@@ -3,33 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>500 - Server Error | AI Fleet Management</title>
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
-            <ul class="nav-links">
-                <% // No user context on 500, usually, or minimal links %>
-                <li><a href="/auth/login">Login</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="container text-center" style="max-width: 600px; margin-top: 50px;">
-        <h1>500 - Server Error</h1>
-        <p>Something went wrong on our end.</p>
-        <p>Error: <%= error %></p>
-        <a href="/" class="btn btn-primary mt-20">Go Home</a>
-    </div>
-
-    <footer>
-        <div class="container">
-            <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+    <div class="login-container">
+        <div class="login-card text-center">
+            <i class="fas fa-bug fa-4x" style="color: var(--danger); margin-bottom: 2rem;"></i>
+            <h1 class="login-title">500 - Server Error</h1>
+            <p style="color: var(--text-secondary-dark); margin-bottom: 1rem;">Something went wrong on our end.</p>
+            
+            <% if (typeof error !== 'undefined') { %>
+                <div style="background-color: var(--bg-input-dark); padding: 1rem; border-radius: var(--border-radius); text-align: left; margin: 1rem 0; color: var(--danger); font-family: monospace; white-space: pre-wrap; word-wrap: break-word;">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <a href="/" class="btn btn--primary w-100">Go Home</a>
         </div>
-    </footer>
-
-    <script src="/js/main.js"></script>
+    </div>
+    
+    <div class="footer">
+        <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+    </div>
 </body>
 </html>

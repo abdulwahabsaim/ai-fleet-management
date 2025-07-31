@@ -6,10 +6,10 @@ module.exports = {
     listVehicles: async (req, res) => {
         try {
             const vehicles = await Vehicle.find({});
-            res.render('vehicles/list', { // Removed layout: 'main'
-                vehicles: vehicles,
-                success_msg: req.flash('success_msg'),
-                error_msg: req.flash('error_msg')
+            res.render('vehicles/list', {
+                title: 'Vehicle Management',
+                vehicles: vehicles
+                // user, path, pageTitle, success_msg, and error_msg are available via res.locals
             });
         } catch (err) {
             console.error(err);
@@ -20,8 +20,9 @@ module.exports = {
 
     // Show form to add new vehicle
     showAddVehicleForm: (req, res) => {
-        res.render('vehicles/add', { // Removed layout: 'main'
-            error_msg: req.flash('error_msg')
+        res.render('vehicles/add', {
+            title: 'Add Vehicle'
+            // user, path, pageTitle, success_msg, and error_msg are available via res.locals
         });
     },
 
@@ -80,9 +81,10 @@ module.exports = {
                 req.flash('error_msg', 'Vehicle not found.');
                 return res.redirect('/vehicles');
             }
-            res.render('vehicles/edit', { // Removed layout: 'main'
-                vehicle: vehicle,
-                error_msg: req.flash('error_msg')
+            res.render('vehicles/edit', {
+                title: 'Edit Vehicle',
+                vehicle: vehicle
+                // user, path, pageTitle, success_msg, and error_msg are available via res.locals
             });
         } catch (err) {
             console.error(err);
