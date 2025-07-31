@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - AI Fleet Management</title>
+    
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Design Components -->
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body class="mdc-typography">
+    <!-- Top App Bar -->
+    <header class="mdc-top-app-bar mdc-top-app-bar--fixed">
+        <div class="mdc-top-app-bar__row">
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button" 
+                        aria-label="Open navigation menu" id="menu-toggle">
+                    menu
+                </button>
+                <span class="mdc-top-app-bar__title">
+                    <i class="material-icons" style="margin-right: 8px;">directions_car</i>
+                    AI Fleet Management
+                </span>
+            </section>
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+                <!-- Notifications -->
+                <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" 
+                        aria-label="Notifications" id="notifications-btn">
+                    notifications
+                </button>
+                
+                <!-- User Menu -->
+                <div class="mdc-menu-surface--anchor">
+                    <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" 
+                            aria-label="User menu" id="user-menu-btn">
+                        account_circle
+                    </button>
+                    <div class="mdc-menu mdc-menu-surface" id="user-menu">
+                        <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1">
+                            <li class="mdc-list-item" role="menuitem">
+                                <span class="mdc-list-item__ripple"></span>
+                                <span class="mdc-list-item__text">Profile</span>
+                            </li>
+                            <li class="mdc-list-item" role="menuitem">
+                                <span class="mdc-list-item__ripple"></span>
+                                <span class="mdc-list-item__text">Settings</span>
+                            </li>
+                            <li class="mdc-list-divider" role="separator"></li>
+                            <li class="mdc-list-item" role="menuitem">
+                                <span class="mdc-list-item__ripple"></span>
+                                <span class="mdc-list-item__text">
+                                    <a href="/auth/logout" style="text-decoration: none; color: inherit;">Logout</a>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </header>
+
+    <!-- Navigation Drawer -->
+    <aside class="mdc-drawer mdc-drawer--dismissible mdc-top-app-bar--fixed-adjust" id="navigation-drawer">
+        <div class="mdc-drawer__header">
+            <h3 class="mdc-drawer__title">Navigation</h3>
+            <h6 class="mdc-drawer__subtitle">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    Welcome, <%= user.username %>
+                <% } %>
+            </h6>
+        </div>
+        <div class="mdc-drawer__content">
+            <nav class="mdc-list">
+                <a class="mdc-list-item mdc-list-item--activated" href="/dashboard" aria-current="page">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>
+                    <span class="mdc-list-item__text">Dashboard</span>
+                </a>
+                <a class="mdc-list-item" href="/vehicles">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">directions_car</i>
+                    <span class="mdc-list-item__text">Vehicles</span>
+                </a>
+                <a class="mdc-list-item" href="/routes">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">map</i>
+                    <span class="mdc-list-item__text">Routes</span>
+                </a>
+                <a class="mdc-list-item" href="/trips">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">navigation</i>
+                    <span class="mdc-list-item__text">Trips</span>
+                </a>
+                <a class="mdc-list-item" href="/maintenance">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">build</i>
+                    <span class="mdc-list-item__text">Maintenance</span>
+                </a>
+                <a class="mdc-list-item" href="/drivers">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>
+                    <span class="mdc-list-item__text">Drivers</span>
+                </a>
+                <a class="mdc-list-item" href="/analytics">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">analytics</i>
+                    <span class="mdc-list-item__text">Analytics</span>
+                </a>
+                
+                <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+                    <hr class="mdc-list-divider">
+                    <h6 class="mdc-list-group__subheader">Admin</h6>
+                    <a class="mdc-list-item" href="/admin/dashboard">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic" aria-hidden="true">admin_panel_settings</i>
+                        <span class="mdc-list-item__text">Admin Dashboard</span>
+                    </a>
+                    <a class="mdc-list-item" href="/admin/users">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic" aria-hidden="true">people</i>
+                        <span class="mdc-list-item__text">Users</span>
+                    </a>
+                <% } %>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <div class="mdc-top-app-bar--fixed-adjust">
+            <!-- Flash Messages -->
+            <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                <div class="mdc-snackbar" id="success-snackbar">
+                    <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
+                        <div class="mdc-snackbar__label" aria-atomic="false">
+                            <%= success_msg %>
+                        </div>
+                        <div class="mdc-snackbar__actions" aria-atomic="true">
+                            <button type="button" class="mdc-button mdc-snackbar__action">
+                                <div class="mdc-button__ripple"></div>
+                                <span class="mdc-button__label">Dismiss</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                <div class="mdc-snackbar" id="error-snackbar">
+                    <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
+                        <div class="mdc-snackbar__label" aria-atomic="false">
+                            <%= error_msg %>
+                        </div>
+                        <div class="mdc-snackbar__actions" aria-atomic="true">
+                            <button type="button" class="mdc-button mdc-snackbar__action">
+                                <div class="mdc-button__ripple"></div>
+                                <span class="mdc-button__label">Dismiss</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Page Content -->
+            <%- body %>
+        </div>
+    </main>
+
+    <!-- Notifications Panel -->
+    <div class="mdc-menu-surface--anchor">
+        <div class="mdc-menu mdc-menu-surface" id="notifications-menu">
+            <div class="notifications-header">
+                <h6>Notifications</h6>
+                <button class="mdc-icon-button material-icons" id="clear-notifications">
+                    clear_all
+                </button>
+            </div>
+            <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1" id="notifications-list">
+                <!-- Notifications will be populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="mdc-circular-progress" style="width: 48px; height: 48px;" role="progressbar" aria-label="Loading">
+            <div class="mdc-circular-progress__determinate-container">
+                <svg class="mdc-circular-progress__determinate-circle-graphic" viewBox="0 0 48 48">
+                    <circle class="mdc-circular-progress__determinate-track" cx="24" cy="24" r="18" stroke-width="4"/>
+                    <circle class="mdc-circular-progress__determinate-circle" cx="24" cy="24" r="18" stroke-width="4"/>
+                </svg>
+            </div>
+            <div class="mdc-circular-progress__indeterminate-container">
+                <div class="mdc-circular-progress__spinner-layer">
+                    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">
+                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                        </svg>
+                    </div>
+                    <div class="mdc-circular-progress__gap-patch">
+                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                        </svg>
+                    </div>
+                    <div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">
+                        <svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="18" stroke-width="4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Design Components JS -->
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    <script src="/js/map.js"></script>
+    
+    <script>
+        // Initialize Material Design Components
+        mdc.autoInit();
+        
+        // Initialize Socket.IO
+        const socket = io();
+        
+        // Join user room if logged in
+        <% if (typeof user !== 'undefined' && user) { %>
+            socket.emit('join', '<%= user._id %>');
+        <% } %>
+        
+        // Handle real-time updates
+        socket.on('vehicleLocationUpdate', (data) => {
+            // Update vehicle location on map
+            if (window.updateVehicleLocation) {
+                window.updateVehicleLocation(data);
+            }
+        });
+        
+        socket.on('maintenanceAlert', (data) => {
+            // Show maintenance alert notification
+            showNotification(data.message, 'warning');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Create New User | AI Fleet Management</title>
+</head>
+<body>
+    <!-- ================== ADDED HEADER ================== -->
+    <header>
+        <nav class="navbar">
+            <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
+            <ul class="nav-links">
+                <% if (isAuthenticated) { %>
+                    <!-- This ensures the full navbar shows if an admin is creating a user -->
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/vehicles">Vehicles</a></li>
+                    <li><a href="/admin/users">Users</a></li>
+                    <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
+    <!-- ================================================== -->
+
+    <div class="container" style="max-width: 500px; margin-top: 50px;">
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        
+        <h1>Create New User</h1>
+        <form action="/auth/register" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Create Password" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirm Password" required>
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" class="form-control" required>
+                    <option value="fleet_manager">Fleet Manager</option>
+                    <option value="driver">Driver</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Create User</button>
+             <a href="/admin/users" class="btn btn-secondary btn-block" style="text-align: center; margin-top: 10px;">Cancel</a>
+        </form>
+    </div>
+
+    <!-- ================== ADDED FOOTER ================== -->
+    <footer>
+        <div class="container">
+            <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- ================================================== -->
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

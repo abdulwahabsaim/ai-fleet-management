@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/header') %>
+    <title>Auth | AI Fleet Management</title>
+</head>
+<body>
+    <div class="container" style="max-width: 500px; margin-top: 50px;">
+        <% if (typeof error_msg != 'undefined' && error_msg) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        <% if (typeof success_msg != 'undefined' && success_msg) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <%- body %> <!-- This is where the specific view content will be injected -->
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

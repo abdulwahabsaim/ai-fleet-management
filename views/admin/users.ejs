@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>User Management | AI Fleet Management</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="/admin/dashboard" class="navbar-brand">AI Fleet Manager</a>
+            <ul class="nav-links">
+                <% if (isAuthenticated) { %>
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/vehicles">Vehicles</a></li>
+                    <% if (user && user.role === 'admin') { %>
+                        <li><a href="/admin/users">Users</a></li>
+                        <li><a href="/auth/register">Create User</a></li>
+                    <% } %>
+                    <li><a href="/auth/logout">Logout (<%= user.username %>)</a></li>
+                <% } else { %>
+                    <li><a href="/auth/login">Login</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <% if (typeof error_msg != 'undefined' && error_msg) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        <% if (typeof success_msg != 'undefined' && success_msg) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <h1>User Management</h1>
+        <a href="/auth/register" class="btn btn-success mb-20">Create New User</a>
+
+        <% if (users.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created At</th>
+                        <!-- Add actions like edit/delete if needed in this phase -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td><%= user.username %></td>
+                            <td><%= user.role %></td>
+                            <td><%= user.createdAt.toLocaleDateString() %></td>
+                            <!-- Add buttons for actions here -->
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No users registered yet.</p>
+        <% } %>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© <%= new Date().getFullYear() %> AI Fleet & Route Optimization Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
