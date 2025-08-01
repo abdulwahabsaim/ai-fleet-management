@@ -187,4 +187,11 @@ DriverSchema.pre('save', function(next) {
     next();
 });
 
+// Add indexes for better performance
+DriverSchema.index({ status: 1, availability: 1 });
+DriverSchema.index({ licenseNumber: 1 });
+DriverSchema.index({ email: 1 });
+DriverSchema.index({ 'licenseExpiryDate': 1 });
+DriverSchema.index({ 'workSchedule.workDays': 1 });
+
 module.exports = mongoose.model('Driver', DriverSchema); 

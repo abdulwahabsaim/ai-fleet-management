@@ -75,92 +75,47 @@
         <div class="page-header">
             <h1 class="page-title"><i class="fas fa-user"></i> Driver Management</h1>
             <p class="page-subtitle">Manage your fleet drivers</p>
+            <button id="addDriverBtn" class="btn btn--primary">
+                <i class="fas fa-plus"></i> Add New Driver
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users stat-card-icon"></i>
+                <div class="stat-card-value" id="totalDrivers">0</div>
+                <div class="stat-card-label">Total Drivers</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-check-circle stat-card-icon"></i>
+                <div class="stat-card-value" id="activeDrivers">0</div>
+                <div class="stat-card-label">Active Drivers</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-route stat-card-icon"></i>
+                <div class="stat-card-value" id="onTripDrivers">0</div>
+                <div class="stat-card-label">On Trip</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-calendar-times stat-card-icon"></i>
+                <div class="stat-card-value" id="onLeaveDrivers">0</div>
+                <div class="stat-card-label">On Leave</div>
+            </div>
         </div>
 
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Drivers</h2>
-                <button class="btn btn--primary">
-                    <i class="fas fa-plus"></i> Add New Driver
-                </button>
+                <div class="card-actions">
+                    <input type="text" id="searchDriver" class="form-input" placeholder="Search drivers...">
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>License Number</th>
-                                <th>License Type</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th>Performance</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Smith</td>
-                                <td>DL12345678</td>
-                                <td>B</td>
-                                <td>555-123-4567</td>
-                                <td><span class="status-indicator status-indicator--active">Available</span></td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 85%;">85%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Jane Doe</td>
-                                <td>DL87654321</td>
-                                <td>C</td>
-                                <td>555-987-6543</td>
-                                <td><span class="status-indicator status-indicator--on-trip">On Trip</span></td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 92%;">92%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Robert Johnson</td>
-                                <td>DL24681357</td>
-                                <td>B</td>
-                                <td>555-456-7890</td>
-                                <td><span class="status-indicator status-indicator--inactive">Off Duty</span></td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 78%;">78%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="driverList" class="table-container">
+                    <!-- Driver list will be loaded here -->
                 </div>
             </div>
         </div>
@@ -180,81 +135,76 @@
         </div>
     </div>
 
+    <!-- Add Driver Modal -->
+    <div id="driverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Driver</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="driverForm">
+                <div class="form-group">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" id="firstName" name="firstName" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="licenseNumber" class="form-label">License Number</label>
+                    <input type="text" id="licenseNumber" name="licenseNumber" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="licenseType" class="form-label">License Type</label>
+                    <select id="licenseType" name="licenseType" class="form-input" required>
+                        <option value="">Select License Type</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="licenseExpiryDate" class="form-label">License Expiry Date</label>
+                    <input type="date" id="licenseExpiryDate" name="licenseExpiryDate" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-input" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="on_trip">On Trip</option>
+                        <option value="on_leave">On Leave</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn--secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Driver</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Initialize driver performance chart
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('driverPerformanceChart');
-            if (ctx) {
-                const driverPerformanceChart = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['Fuel Efficiency', 'Time Efficiency', 'Safety', 'Customer Satisfaction', 'Punctuality'],
-                        datasets: [
-                            {
-                                label: 'John Smith',
-                                data: [85, 75, 90, 80, 85],
-                                backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                                borderColor: 'rgba(76, 175, 80, 1)',
-                                pointBackgroundColor: 'rgba(76, 175, 80, 1)',
-                                pointBorderColor: '#fff',
-                                pointHoverBackgroundColor: '#fff',
-                                pointHoverBorderColor: 'rgba(76, 175, 80, 1)'
-                            },
-                            {
-                                label: 'Jane Doe',
-                                data: [92, 88, 95, 90, 85],
-                                backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                                borderColor: 'rgba(33, 150, 243, 1)',
-                                pointBackgroundColor: 'rgba(33, 150, 243, 1)',
-                                pointBorderColor: '#fff',
-                                pointHoverBackgroundColor: '#fff',
-                                pointHoverBorderColor: 'rgba(33, 150, 243, 1)'
-                            },
-                            {
-                                label: 'Robert Johnson',
-                                data: [78, 82, 75, 85, 70],
-                                backgroundColor: 'rgba(255, 193, 7, 0.2)',
-                                borderColor: 'rgba(255, 193, 7, 1)',
-                                pointBackgroundColor: 'rgba(255, 193, 7, 1)',
-                                pointBorderColor: '#fff',
-                                pointHoverBackgroundColor: '#fff',
-                                pointHoverBorderColor: 'rgba(255, 193, 7, 1)'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                angleLines: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                pointLabels: {
-                                    color: '#e0e0e0'
-                                },
-                                ticks: {
-                                    color: '#e0e0e0',
-                                    backdropColor: 'transparent'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#e0e0e0'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="/js/drivers.js"></script>
 </body>
 </html>

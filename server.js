@@ -10,13 +10,18 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const logger = require('./utils/logger');
 require('dotenv').config(); // Load environment variables from .env file
 
 // Import database connection
-const connectDB = require('./config/db');
+const dbConnect = require('./config/db');
 
 // Connect to database
-connectDB();
+dbConnect().then(() => {
+    logger.info('Database connected successfully');
+}).catch((error) => {
+    logger.error('Database connection failed', { error: error.message });
+});
 
 // Initialize Express app
 const app = express();
@@ -40,8 +45,15 @@ app.use(helmet({
 // Compression middleware
 app.use(compression());
 
-// CORS middleware
-app.use(cors());
+// CORS middleware - Configure for API routes
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000']
+        : ['http://localhost:3000', 'http://localhost:5000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -80,8 +92,30 @@ app.use(session({
 app.use(flash());
 
 // Custom middleware to set global variables for EJS templates
-const { setUser } = require('./middleware/authMiddleware');
+const { setUser, ensureAuthenticated } = require('./middleware/authMiddleware');
 app.use(setUser); // Make user and isAuthenticated available to all EJS templates
+
+// Logging middleware for HTTP requests
+app.use((req, res, next) => {
+    const start = Date.now();
+    
+    // Log the request
+    logger.info(`Incoming ${req.method} request to ${req.url}`, {
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        userId: req.session?.userId || 'anonymous'
+    });
+    
+    // Override res.end to log response
+    const originalEnd = res.end;
+    res.end = function(chunk, encoding) {
+        const responseTime = Date.now() - start;
+        logger.access(req, res, responseTime);
+        originalEnd.call(this, chunk, encoding);
+    };
+    
+    next();
+});
 
 // Global variables for flash messages and current path (so they are available in all templates)
 app.use((req, res, next) => {
@@ -169,20 +203,15 @@ app.get('/', (req, res) => {
 });
 
 // Generic dashboard route for non-admin users (fleet managers)
-app.get('/dashboard', (req, res) => {
-    if (req.session.userId) {
-        if (req.session.userRole === 'admin') {
-            res.redirect('/admin/dashboard');
-        } else {
-            // Render the generic dashboard specific for non-admin users
-            res.render('generic_dashboard', {
-                title: 'Fleet Manager Dashboard'
-                // user, path, pageTitle, success_msg, and error_msg are available via res.locals
-            });
-        }
+app.get('/dashboard', ensureAuthenticated, (req, res) => {
+    if (req.session.userRole === 'admin') {
+        res.redirect('/admin/dashboard');
     } else {
-        req.flash('error_msg', 'Please log in to view the dashboard');
-        res.redirect('/auth/login');
+        // Render the generic dashboard specific for non-admin users
+        res.render('generic_dashboard', {
+            title: 'Fleet Manager Dashboard'
+            // user, path, pageTitle, success_msg, and error_msg are available via res.locals
+        });
     }
 });
 
@@ -204,7 +233,14 @@ app.use((req, res, next) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error('Unhandled error occurred', {
+        error: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method,
+        userId: req.session?.userId || 'anonymous'
+    });
+    
     res.status(500).render('500', { // NO layout option here
         title: 'Server Error',
         error: err.message
@@ -213,4 +249,11 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+    logger.info(`Server started successfully`, {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toISOString()
+    });
+    console.log(`Server running on port ${PORT}`);
+});

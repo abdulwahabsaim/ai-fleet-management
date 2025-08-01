@@ -229,4 +229,14 @@ MaintenanceSchema.pre('save', function(next) {
     next();
 });
 
+// Add indexes for better performance
+MaintenanceSchema.index({ status: 1 });
+MaintenanceSchema.index({ vehicle: 1 });
+MaintenanceSchema.index({ priority: 1 });
+MaintenanceSchema.index({ category: 1 });
+MaintenanceSchema.index({ scheduledDate: 1 });
+MaintenanceSchema.index({ createdBy: 1 });
+MaintenanceSchema.index({ maintenanceNumber: 1 });
+MaintenanceSchema.index({ riskLevel: 1 });
+
 module.exports = mongoose.model('Maintenance', MaintenanceSchema); 

@@ -22,7 +22,7 @@ const TripSchema = new mongoose.Schema({
     },
     driver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Driver'
     },
     // Route information
     route: {
@@ -150,37 +150,56 @@ const TripSchema = new mongoose.Schema({
 
 // Method to calculate efficiency score
 TripSchema.methods.calculateEfficiencyScore = function() {
-    if (!this.actualEndTime || !this.actualStartTime) return 0;
-    
-    const timeEfficiency = Math.max(0, 100 - (this.actualDuration / this.plannedDuration - 1) * 50);
-    const fuelEfficiency = Math.max(0, 100 - (this.actualFuelConsumption / this.plannedFuelConsumption - 1) * 50);
-    const distanceEfficiency = Math.max(0, 100 - (this.actualDistance / this.plannedDistance - 1) * 50);
-    
-    this.efficiencyScore = Math.round((timeEfficiency + fuelEfficiency + distanceEfficiency) / 3);
-    return this.efficiencyScore;
+    try {
+        if (!this.actualEndTime || !this.actualStartTime) return 0;
+        
+        const timeEfficiency = Math.max(0, 100 - ((this.actualDuration || 0) / (this.plannedDuration || 1) - 1) * 50);
+        const fuelEfficiency = Math.max(0, 100 - ((this.actualFuelConsumption || 0) / (this.plannedFuelConsumption || 1) - 1) * 50);
+        const distanceEfficiency = Math.max(0, 100 - ((this.actualDistance || 0) / (this.plannedDistance || 1) - 1) * 50);
+        
+        this.efficiencyScore = Math.round((timeEfficiency + fuelEfficiency + distanceEfficiency) / 3);
+        return this.efficiencyScore;
+    } catch (error) {
+        console.error('Error calculating efficiency score:', error);
+        this.efficiencyScore = 0;
+        return 0;
+    }
 };
 
 // Method to calculate deviations from plan
 TripSchema.methods.calculateDeviations = function() {
-    this.deviationFromPlan.distance = this.actualDistance - this.plannedDistance;
-    this.deviationFromPlan.time = this.actualDuration - this.plannedDuration;
-    this.deviationFromPlan.fuel = this.actualFuelConsumption - this.plannedFuelConsumption;
-    
-    return this.deviationFromPlan;
+    try {
+        this.deviationFromPlan.distance = (this.actualDistance || 0) - (this.plannedDistance || 0);
+        this.deviationFromPlan.time = (this.actualDuration || 0) - (this.plannedDuration || 0);
+        this.deviationFromPlan.fuel = (this.actualFuelConsumption || 0) - (this.plannedFuelConsumption || 0);
+        
+        return this.deviationFromPlan;
+    } catch (error) {
+        console.error('Error calculating deviations:', error);
+        return {
+            distance: 0,
+            time: 0,
+            fuel: 0
+        };
+    }
 };
 
 // Method to complete trip
 TripSchema.methods.completeTrip = function(endTime, actualDistance, actualFuelConsumption) {
-    this.actualEndTime = endTime;
-    this.actualDistance = actualDistance;
-    this.actualFuelConsumption = actualFuelConsumption;
-    this.actualDuration = (endTime - this.actualStartTime) / (1000 * 60); // in minutes
-    this.status = 'completed';
-    this.updatedAt = new Date();
-    
-    // Calculate efficiency and deviations
-    this.calculateEfficiencyScore();
-    this.calculateDeviations();
+    try {
+        this.actualEndTime = endTime;
+        this.actualDistance = actualDistance || 0;
+        this.actualFuelConsumption = actualFuelConsumption || 0;
+        this.actualDuration = this.actualStartTime ? (endTime - this.actualStartTime) / (1000 * 60) : 0; // in minutes
+        this.status = 'completed';
+        this.updatedAt = new Date();
+        
+        // Calculate efficiency and deviations
+        this.calculateEfficiencyScore();
+        this.calculateDeviations();
+    } catch (error) {
+        console.error('Error completing trip:', error);
+    }
 };
 
 // Pre-save middleware to generate trip number
@@ -195,5 +214,14 @@ TripSchema.pre('save', function(next) {
     }
     next();
 });
+
+// Add indexes for better performance
+TripSchema.index({ status: 1 });
+TripSchema.index({ vehicle: 1 });
+TripSchema.index({ driver: 1 });
+TripSchema.index({ createdBy: 1 });
+TripSchema.index({ scheduledStartTime: 1 });
+TripSchema.index({ actualStartTime: 1 });
+TripSchema.index({ tripNumber: 1 });
 
 module.exports = mongoose.model('Trip', TripSchema); 

@@ -75,76 +75,47 @@
         <div class="page-header">
             <h1 class="page-title"><i class="fas fa-tools"></i> Maintenance Management</h1>
             <p class="page-subtitle">Track and schedule vehicle maintenance</p>
+            <button id="addMaintenanceBtn" class="btn btn--primary">
+                <i class="fas fa-plus"></i> Add Maintenance
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-tools stat-card-icon"></i>
+                <div class="stat-card-value" id="totalMaintenance">0</div>
+                <div class="stat-card-label">Total Maintenance</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-calendar-check stat-card-icon"></i>
+                <div class="stat-card-value" id="scheduledMaintenance">0</div>
+                <div class="stat-card-label">Scheduled</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-clock stat-card-icon"></i>
+                <div class="stat-card-value" id="inProgressMaintenance">0</div>
+                <div class="stat-card-label">In Progress</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-exclamation-triangle stat-card-icon"></i>
+                <div class="stat-card-value" id="overdueMaintenance">0</div>
+                <div class="stat-card-label">Overdue</div>
+            </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Maintenance Schedule</h2>
-                <button class="btn btn--primary">
-                    <i class="fas fa-plus"></i> Schedule Maintenance
-                </button>
+                <h2 class="card-title">Maintenance Records</h2>
+                <div class="card-actions">
+                    <input type="text" id="searchMaintenance" class="form-input" placeholder="Search maintenance...">
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Type</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Cost</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Toyota Corolla (ABC-123)</td>
-                                <td>Oil Change</td>
-                                <td>Aug 15, 2023</td>
-                                <td><span class="status-indicator status-indicator--active">Completed</span></td>
-                                <td>$45.00</td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Honda Civic (XYZ-789)</td>
-                                <td>Tire Rotation</td>
-                                <td>Sep 5, 2023</td>
-                                <td><span class="status-indicator status-indicator--in-maintenance">Scheduled</span></td>
-                                <td>$30.00</td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Ford Focus (DEF-456)</td>
-                                <td>Full Service</td>
-                                <td>Oct 12, 2023</td>
-                                <td><span class="status-indicator status-indicator--inactive">Pending</span></td>
-                                <td>$250.00</td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="maintenanceList" class="table-container">
+                    <!-- Maintenance records will be loaded here -->
                 </div>
             </div>
         </div>
@@ -164,62 +135,60 @@
         </div>
     </div>
 
+    <!-- Add Maintenance Modal -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Maintenance Record</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="maintenanceForm">
+                <div class="form-group">
+                    <label for="vehicle" class="form-label">Vehicle</label>
+                    <select id="vehicle" name="vehicle" class="form-input" required>
+                        <option value="">Select Vehicle</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="type" class="form-label">Maintenance Type</label>
+                    <select id="type" name="type" class="form-input" required>
+                        <option value="">Select Type</option>
+                        <option value="routine">Routine</option>
+                        <option value="repair">Repair</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category" class="form-label">Category</label>
+                    <input type="text" id="category" name="category" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-input" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduledDate" class="form-label">Scheduled Date</label>
+                    <input type="datetime-local" id="scheduledDate" name="scheduledDate" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estimatedCost" class="form-label">Estimated Cost</label>
+                    <input type="number" id="estimatedCost" name="estimatedCost" class="form-input" step="0.01" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn--secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Maintenance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Initialize maintenance cost chart
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('maintenanceCostChart');
-            if (ctx) {
-                const maintenanceCostChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Toyota Corolla', 'Honda Civic', 'Ford Focus'],
-                        datasets: [{
-                            label: 'Maintenance Cost ($)',
-                            data: [150, 75, 250],
-                            backgroundColor: [
-                                'rgba(255, 87, 34, 0.7)',
-                                'rgba(255, 193, 7, 0.7)',
-                                'rgba(156, 39, 176, 0.7)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false,
-                                labels: {
-                                    color: '#e0e0e0'
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#e0e0e0'
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#e0e0e0'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="/js/maintenance.js"></script>
 </body>
 </html>

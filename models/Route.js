@@ -106,4 +106,12 @@ RouteSchema.methods.updateMetrics = function(distance, time, fuelConsumption) {
     this.calculateOptimizationScore();
 };
 
+// Add indexes for better performance
+RouteSchema.index({ status: 1 });
+RouteSchema.index({ createdBy: 1 });
+RouteSchema.index({ name: 1 });
+RouteSchema.index({ 'waypoints.latitude': 1, 'waypoints.longitude': 1 });
+RouteSchema.index({ totalDistance: 1 });
+RouteSchema.index({ estimatedTime: 1 });
+
 module.exports = mongoose.model('Route', RouteSchema); 

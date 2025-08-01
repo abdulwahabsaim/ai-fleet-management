@@ -17,13 +17,28 @@
         
         <div class="sidebar-menu">
             <% if (isAuthenticated) { %>
-                <a href="/admin/dashboard" class="sidebar-menu-item <%= path === '/admin/dashboard' ? 'active' : '' %>">
+                <a href="/dashboard" class="sidebar-menu-item <%= path === '/dashboard' ? 'active' : '' %>">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
                 <a href="/vehicles" class="sidebar-menu-item <%= path === '/vehicles' ? 'active' : '' %>">
                     <i class="fas fa-car"></i> Vehicles
                 </a>
+                <a href="/trips" class="sidebar-menu-item <%= path === '/trips' ? 'active' : '' %>">
+                    <i class="fas fa-route"></i> Trips
+                </a>
+                <a href="/routes" class="sidebar-menu-item <%= path === '/routes' ? 'active' : '' %>">
+                    <i class="fas fa-map-marked-alt"></i> Routes
+                </a>
+                <a href="/maintenance" class="sidebar-menu-item <%= path === '/maintenance' ? 'active' : '' %>">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="/drivers" class="sidebar-menu-item <%= path === '/drivers' ? 'active' : '' %>">
+                    <i class="fas fa-user-tie"></i> Drivers
+                </a>
                 <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/dashboard" class="sidebar-menu-item <%= path === '/admin/dashboard' ? 'active' : '' %>">
+                        <i class="fas fa-cog"></i> Admin Dashboard
+                    </a>
                     <a href="/admin/users" class="sidebar-menu-item <%= path === '/admin/users' ? 'active' : '' %>">
                         <i class="fas fa-users"></i> Users
                     </a>

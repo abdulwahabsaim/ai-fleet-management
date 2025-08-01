@@ -75,148 +75,121 @@
         <div class="page-header">
             <h1 class="page-title"><i class="fas fa-map-marked-alt"></i> Trip Management</h1>
             <p class="page-subtitle">Plan and track fleet trips</p>
+            <button id="addTripBtn" class="btn btn--primary">
+                <i class="fas fa-plus"></i> Create New Trip
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-map-marked-alt stat-card-icon"></i>
+                <div class="stat-card-value" id="totalTrips">0</div>
+                <div class="stat-card-label">Total Trips</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-check-circle stat-card-icon"></i>
+                <div class="stat-card-value" id="completedTrips">0</div>
+                <div class="stat-card-label">Completed</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-route stat-card-icon"></i>
+                <div class="stat-card-value" id="inProgressTrips">0</div>
+                <div class="stat-card-label">In Progress</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-calendar-check stat-card-icon"></i>
+                <div class="stat-card-value" id="scheduledTrips">0</div>
+                <div class="stat-card-label">Scheduled</div>
+            </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Active Trips</h2>
-                <button class="btn btn--primary">
-                    <i class="fas fa-plus"></i> Create New Trip
-                </button>
+                <h2 class="card-title">Trip Management</h2>
+                <div class="card-actions">
+                    <input type="text" id="searchTrip" class="form-input" placeholder="Search trips...">
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Trip ID</th>
-                                <th>Vehicle</th>
-                                <th>Driver</th>
-                                <th>Start Time</th>
-                                <th>Est. End Time</th>
-                                <th>Status</th>
-                                <th>Progress</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>TRIP-20230815-001</td>
-                                <td>Toyota Corolla (ABC-123)</td>
-                                <td>John Smith</td>
-                                <td>Aug 15, 2023 09:00</td>
-                                <td>Aug 15, 2023 12:30</td>
-                                <td><span class="status-indicator status-indicator--on-trip">In Progress</span></td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 65%;">65%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>TRIP-20230815-002</td>
-                                <td>Honda Civic (XYZ-789)</td>
-                                <td>Jane Doe</td>
-                                <td>Aug 15, 2023 10:15</td>
-                                <td>Aug 15, 2023 14:45</td>
-                                <td><span class="status-indicator status-indicator--on-trip">In Progress</span></td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 30%;">30%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn--secondary btn--sm">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <button class="btn btn--error btn--sm">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="tripList" class="table-container">
+                    <!-- Trip list will be loaded here -->
                 </div>
             </div>
         </div>
 
-        <div class="card mt-4">
-            <div class="card-header">
-                <h2 class="card-title">Trip History</h2>
+    </div>
+
+    <!-- Add Trip Modal -->
+    <div id="tripModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Create New Trip</h3>
+                <span class="close">&times;</span>
             </div>
-            <div class="card-body">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Trip ID</th>
-                                <th>Vehicle</th>
-                                <th>Driver</th>
-                                <th>Date</th>
-                                <th>Duration</th>
-                                <th>Distance</th>
-                                <th>Fuel Used</th>
-                                <th>Efficiency</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>TRIP-20230814-003</td>
-                                <td>Toyota Corolla (ABC-123)</td>
-                                <td>John Smith</td>
-                                <td>Aug 14, 2023</td>
-                                <td>3h 15m</td>
-                                <td>145 km</td>
-                                <td>12.5 L</td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 85%;">85%</div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>TRIP-20230813-002</td>
-                                <td>Honda Civic (XYZ-789)</td>
-                                <td>Jane Doe</td>
-                                <td>Aug 13, 2023</td>
-                                <td>2h 45m</td>
-                                <td>120 km</td>
-                                <td>9.8 L</td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 92%;">92%</div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>TRIP-20230812-001</td>
-                                <td>Ford Focus (DEF-456)</td>
-                                <td>Robert Johnson</td>
-                                <td>Aug 12, 2023</td>
-                                <td>4h 30m</td>
-                                <td>210 km</td>
-                                <td>18.2 L</td>
-                                <td>
-                                    <div class="performance-bar">
-                                        <div class="performance-fill" style="width: 78%;">78%</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <form id="tripForm">
+                <div class="form-group">
+                    <label for="tripNumber" class="form-label">Trip Number</label>
+                    <input type="text" id="tripNumber" name="tripNumber" class="form-input" required>
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Trip Title</label>
+                    <input type="text" id="title" name="title" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="vehicle" class="form-label">Vehicle</label>
+                    <select id="vehicle" name="vehicle" class="form-input" required>
+                        <option value="">Select Vehicle</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="driver" class="form-label">Driver</label>
+                    <select id="driver" name="driver" class="form-input" required>
+                        <option value="">Select Driver</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="route" class="form-label">Route</label>
+                    <select id="route" name="route" class="form-input" required>
+                        <option value="">Select Route</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduledStartTime" class="form-label">Scheduled Start Time</label>
+                    <input type="datetime-local" id="scheduledStartTime" name="scheduledStartTime" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduledEndTime" class="form-label">Scheduled End Time</label>
+                    <input type="datetime-local" id="scheduledEndTime" name="scheduledEndTime" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedDistance" class="form-label">Planned Distance (km)</label>
+                    <input type="number" id="plannedDistance" name="plannedDistance" class="form-input" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedFuelConsumption" class="form-label">Planned Fuel Consumption (L)</label>
+                    <input type="number" id="plannedFuelConsumption" name="plannedFuelConsumption" class="form-input" step="0.1" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn--secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Trip</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script src="/js/main.js"></script>
+    <script src="/js/trips.js"></script>
 </body>
 </html>
