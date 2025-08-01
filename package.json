@@ -24,7 +24,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "setup": "node setup.js"
+    "setup": "node setup.js",
+    "seed": "node seedData.js"
   },
   "keywords": ["fleet-management", "route-optimization", "ai", "vehicle-tracking", "maintenance-prediction"],
   "author": "",
