@@ -170,24 +170,25 @@ class RouteController {
     static async optimizeRoute(req, res) {
         try {
             const {
-                startLocation,
-                endLocation,
                 waypoints,
-                vehicleType,
                 preferences
             } = req.body;
 
             // Validate input
-            if (!startLocation || !endLocation) {
-                return res.status(400).json({ error: 'Start and end locations are required' });
+            if (!waypoints || waypoints.length < 2) {
+                return res.status(400).json({ error: 'At least 2 waypoints are required' });
             }
+            
+            const startLocation = waypoints[0];
+            const endLocation = waypoints[waypoints.length - 1];
+            const middleWaypoints = waypoints.slice(1, -1);
 
             // Generate optimized route
             const optimizedRoute = await RouteController.generateOptimizedRoute(
                 startLocation,
                 endLocation,
-                waypoints,
-                vehicleType,
+                middleWaypoints,
+                'car', // Default to car if not specified
                 preferences
             );
 
@@ -211,11 +212,7 @@ class RouteController {
 
             // Get existing routes that match criteria
             const existingRoutes = await Route.find({
-                status: 'active',
-                $or: [
-                    { preferredVehicleTypes: { $in: [vehicleType] } },
-                    { preferredVehicleTypes: { $size: 0 } }
-                ]
+                status: 'active'
             }).sort({ optimizationScore: -1 }).limit(5);
 
             // Generate new route recommendations

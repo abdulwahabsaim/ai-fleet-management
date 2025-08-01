@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard | AI Fleet Management</title>
 </head>
 <body>
@@ -22,6 +24,18 @@
                 </a>
                 <a href="/vehicles" class="sidebar-menu-item">
                     <i class="fas fa-car"></i> Vehicles
+                </a>
+                <a href="/routes" class="sidebar-menu-item">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/trips" class="sidebar-menu-item">
+                    <i class="fas fa-map-marked-alt"></i> Trips
+                </a>
+                <a href="/maintenance" class="sidebar-menu-item">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="/drivers" class="sidebar-menu-item">
+                    <i class="fas fa-user"></i> Drivers
                 </a>
                 <% if (user && user.role === 'admin') { %>
                     <a href="/admin/users" class="sidebar-menu-item">
@@ -63,44 +77,91 @@
         <div class="page-header">
             <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
             <p class="page-subtitle">Welcome to the AI Fleet Management System</p>
+            <button id="refreshDashboard" class="btn btn--primary">
+                <i class="fas fa-sync-alt"></i> Refresh Dashboard
+            </button>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
                 <i class="fas fa-car stat-card-icon"></i>
-                <div class="stat-card-value">5</div>
+                <div class="stat-card-value" id="totalVehicles">5</div>
                 <div class="stat-card-label">Total Vehicles</div>
             </div>
             
             <div class="stat-card">
-                <i class="fas fa-route stat-card-icon"></i>
-                <div class="stat-card-value">12</div>
-                <div class="stat-card-label">Active Routes</div>
-            </div>
-            
-            <div class="stat-card">
-                <i class="fas fa-gas-pump stat-card-icon"></i>
-                <div class="stat-card-value">85%</div>
-                <div class="stat-card-label">Fuel Efficiency</div>
+                <i class="fas fa-check-circle stat-card-icon"></i>
+                <div class="stat-card-value" id="activeVehicles">3</div>
+                <div class="stat-card-label">Active Vehicles</div>
             </div>
             
             <div class="stat-card">
                 <i class="fas fa-tools stat-card-icon"></i>
-                <div class="stat-card-value">2</div>
-                <div class="stat-card-label">Pending Maintenance</div>
+                <div class="stat-card-value" id="inMaintenanceVehicles">1</div>
+                <div class="stat-card-label">In Maintenance</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-route stat-card-icon"></i>
+                <div class="stat-card-value" id="onTripVehicles">1</div>
+                <div class="stat-card-label">On Trip</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-gas-pump stat-card-icon"></i>
+                <div class="stat-card-value" id="averageConsumption">8.5</div>
+                <div class="stat-card-label">Avg. Consumption (L/100km)</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Fleet Status</h2>
+                <div class="card-actions">
+                    <select id="chartPeriodSelector" class="form-input">
+                        <option value="week">Last Week</option>
+                        <option value="month" selected>Last Month</option>
+                        <option value="quarter">Last Quarter</option>
+                        <option value="year">Last Year</option>
+                    </select>
+                </div>
             </div>
             <div class="card-body">
-                <div id="map" style="height: 400px; background-color: #2c2c2c; border-radius: var(--border-radius); display: flex; justify-content: center; align-items: center;">
+                <div id="map" style="height: 300px; background-color: #2c2c2c; border-radius: var(--border-radius); display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
                     <div style="text-align: center;">
                         <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--primary-light); margin-bottom: 1rem;"></i>
                         <p>Map will be displayed here with vehicle locations</p>
                         <p style="color: var(--text-secondary-dark); font-size: 0.9rem;">API key required for map integration</p>
+                    </div>
+                </div>
+                
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Fuel Consumption Trend</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="fuelConsumptionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3 class="chart-title">Trip Efficiency</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="tripEfficiencyChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3 class="chart-title">Maintenance Costs</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="maintenanceCostChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3 class="chart-title">Performance Trends</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="performanceTrendChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,53 +172,87 @@
                 <h2 class="card-title">AI Predictions</h2>
             </div>
             <div class="card-body">
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Prediction Type</th>
-                                <th>Predicted Date</th>
-                                <th>Confidence</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Toyota Corolla (ABC-123)</td>
-                                <td>Maintenance Required</td>
-                                <td>In 15 days</td>
-                                <td>92%</td>
-                                <td>
-                                    <button class="btn btn--secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                                        Schedule
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Honda Civic (XYZ-789)</td>
-                                <td>Low Fuel Efficiency</td>
-                                <td>Current</td>
-                                <td>87%</td>
-                                <td>
-                                    <button class="btn btn--secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                                        Diagnose
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Ford Focus (DEF-456)</td>
-                                <td>Tire Replacement</td>
-                                <td>In 30 days</td>
-                                <td>78%</td>
-                                <td>
-                                    <button class="btn btn--secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
-                                        Schedule
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="aiPredictions" class="predictions-container">
+                    <div class="prediction-card">
+                        <div class="prediction-header high-priority">
+                            <h4>Toyota Corolla</h4>
+                            <span>ABC-123</span>
+                        </div>
+                        <div class="prediction-body">
+                            <div class="score-container">
+                                <div class="score health-score">
+                                    <div class="score-value">42</div>
+                                    <div class="score-label">Health</div>
+                                </div>
+                                <div class="score efficiency-score">
+                                    <div class="score-value">68</div>
+                                    <div class="score-label">Efficiency</div>
+                                </div>
+                            </div>
+                            <div class="prediction-details">
+                                <p><strong>Next Maintenance:</strong> Aug 15, 2023</p>
+                                <p><strong>Recommendations:</strong></p>
+                                <ul>
+                                    <li class="high-priority">Oil change required urgently</li>
+                                    <li class="medium-priority">Brake pads showing wear</li>
+                                    <li class="low-priority">Air filter replacement recommended</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-card">
+                        <div class="prediction-header medium-priority">
+                            <h4>Honda Civic</h4>
+                            <span>XYZ-789</span>
+                        </div>
+                        <div class="prediction-body">
+                            <div class="score-container">
+                                <div class="score health-score">
+                                    <div class="score-value">68</div>
+                                    <div class="score-label">Health</div>
+                                </div>
+                                <div class="score efficiency-score">
+                                    <div class="score-value">72</div>
+                                    <div class="score-label">Efficiency</div>
+                                </div>
+                            </div>
+                            <div class="prediction-details">
+                                <p><strong>Next Maintenance:</strong> Sep 22, 2023</p>
+                                <p><strong>Recommendations:</strong></p>
+                                <ul>
+                                    <li class="medium-priority">Tire rotation needed</li>
+                                    <li class="low-priority">Check suspension system</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-card">
+                        <div class="prediction-header low-priority">
+                            <h4>Ford Focus</h4>
+                            <span>DEF-456</span>
+                        </div>
+                        <div class="prediction-body">
+                            <div class="score-container">
+                                <div class="score health-score">
+                                    <div class="score-value">87</div>
+                                    <div class="score-label">Health</div>
+                                </div>
+                                <div class="score efficiency-score">
+                                    <div class="score-value">91</div>
+                                    <div class="score-label">Efficiency</div>
+                                </div>
+                            </div>
+                            <div class="prediction-details">
+                                <p><strong>Next Maintenance:</strong> Nov 10, 2023</p>
+                                <p><strong>Recommendations:</strong></p>
+                                <ul>
+                                    <li class="low-priority">Regular maintenance check</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -178,7 +273,7 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="recentActivityTable">
                             <tr>
                                 <td>Maintenance Completed</td>
                                 <td>Toyota Corolla (ABC-123)</td>
@@ -208,5 +303,6 @@
     </div>
 
     <script src="/js/main.js"></script>
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>

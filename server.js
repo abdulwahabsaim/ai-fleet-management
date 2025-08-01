@@ -146,8 +146,8 @@ const routeRoutes = require('./routes/routeRoutes');
 app.use('/auth', authRoutes);
 app.use('/vehicles', vehicleRoutes);
 app.use('/admin', adminRoutes);
+app.use('/routes', routeRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/routes', routeRoutes);
 
 // Home route - redirect to login or dashboard if already logged in
 app.get('/', (req, res) => {

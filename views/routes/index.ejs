@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Route Management | AI Fleet Management</title>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/dashboard" class="sidebar-menu-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/vehicles" class="sidebar-menu-item">
+                    <i class="fas fa-car"></i> Vehicles
+                </a>
+                <a href="/routes" class="sidebar-menu-item active">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/trips" class="sidebar-menu-item">
+                    <i class="fas fa-map-marked-alt"></i> Trips
+                </a>
+                <a href="/maintenance" class="sidebar-menu-item">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="/drivers" class="sidebar-menu-item">
+                    <i class="fas fa-user"></i> Drivers
+                </a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/auth/register" class="sidebar-menu-item">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
+                <% } %>
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Route Management
+            </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-route"></i> Route Management</h1>
+            <p class="page-subtitle">Create, optimize, and manage delivery routes</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Route Planner</h2>
+            </div>
+            <div class="card-body">
+                <div id="routeMap" style="height: 400px; background-color: #2c2c2c; border-radius: var(--border-radius); margin-bottom: 20px;"></div>
+                
+                <div class="route-controls">
+                    <div class="route-modes">
+                        <div class="form-group">
+                            <label class="form-label">Map Mode</label>
+                            <div class="mode-toggles">
+                                <div class="mode-toggle">
+                                    <input type="checkbox" id="addWaypointsMode" checked>
+                                    <label for="addWaypointsMode">Add Points</label>
+                                </div>
+                                <div class="mode-toggle">
+                                    <input type="checkbox" id="removeWaypointsMode">
+                                    <label for="removeWaypointsMode">Remove Points</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-preferences">
+                        <div class="form-group">
+                            <label class="form-label">Route Preferences</label>
+                            <div class="preferences-toggles">
+                                <div class="preference-toggle route-preference">
+                                    <input type="checkbox" id="optimizeRoute">
+                                    <label for="optimizeRoute">Optimize Waypoints</label>
+                                </div>
+                                <div class="preference-toggle route-preference">
+                                    <input type="checkbox" id="avoidTolls">
+                                    <label for="avoidTolls">Avoid Toll Roads</label>
+                                </div>
+                                <div class="preference-toggle route-preference">
+                                    <input type="checkbox" id="avoidHighways">
+                                    <label for="avoidHighways">Avoid Highways</label>
+                                </div>
+                                <div class="preference-toggle route-preference">
+                                    <input type="checkbox" id="prioritizeFuel">
+                                    <label for="prioritizeFuel">Prioritize Fuel Efficiency</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-actions">
+                        <button id="clearRouteBtn" class="btn btn--secondary">
+                            <i class="fas fa-trash"></i> Clear Route
+                        </button>
+                        <button id="optimizeAIBtn" class="btn btn--primary">
+                            <i class="fas fa-magic"></i> AI Optimize
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="route-details">
+                    <div class="route-metrics-container">
+                        <h3>Route Metrics</h3>
+                        <div class="route-metrics">
+                            <div class="route-metric">
+                                <i class="fas fa-road"></i>
+                                <div class="metric-value">
+                                    <span id="routeDistance">0.00</span>
+                                    <span class="metric-unit">km</span>
+                                </div>
+                                <div class="metric-label">Distance</div>
+                            </div>
+                            <div class="route-metric">
+                                <i class="fas fa-clock"></i>
+                                <div class="metric-value">
+                                    <span id="routeDuration">0</span>
+                                    <span class="metric-unit">min</span>
+                                </div>
+                                <div class="metric-label">Duration</div>
+                            </div>
+                            <div class="route-metric">
+                                <i class="fas fa-gas-pump"></i>
+                                <div class="metric-value">
+                                    <span id="routeFuelConsumption">0.00</span>
+                                    <span class="metric-unit">L</span>
+                                </div>
+                                <div class="metric-label">Fuel</div>
+                            </div>
+                        </div>
+                        
+                        <div id="optimizationResults" style="display: none;">
+                            <h4>AI Optimization Results</h4>
+                            <div class="optimization-metrics">
+                                <div class="optimization-metric">
+                                    <div class="metric-label">Optimization Score</div>
+                                    <div class="metric-value">
+                                        <span id="optimizationScore">0</span>
+                                        <span class="metric-unit">/100</span>
+                                    </div>
+                                </div>
+                                <div class="optimization-metric">
+                                    <div class="metric-label">Fuel Savings</div>
+                                    <div class="metric-value">
+                                        <span id="fuelSavings">0.00</span>
+                                        <span class="metric-unit">L</span>
+                                    </div>
+                                </div>
+                                <div class="optimization-metric">
+                                    <div class="metric-label">Time Savings</div>
+                                    <div class="metric-value">
+                                        <span id="timeSavings">0</span>
+                                        <span class="metric-unit">min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="waypoints-container">
+                        <h3>Waypoints</h3>
+                        <ul id="waypointsList" class="waypoints-list">
+                            <li class="empty-state">Click on the map to add waypoints</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="route-save-form">
+                    <h3>Save Route</h3>
+                    <div class="form-group">
+                        <label for="routeName" class="form-label">Route Name</label>
+                        <input type="text" id="routeName" class="form-input" placeholder="Enter route name">
+                    </div>
+                    <div class="form-group">
+                        <label for="routeDescription" class="form-label">Description (Optional)</label>
+                        <textarea id="routeDescription" class="form-input" rows="3" placeholder="Enter route description"></textarea>
+                    </div>
+                    <button id="saveRouteBtn" class="btn btn--success" disabled>
+                        <i class="fas fa-save"></i> Save Route
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Saved Routes</h2>
+            </div>
+            <div class="card-body">
+                <div id="routesList" class="routes-list">
+                    <!-- Routes will be loaded dynamically -->
+                    <div class="loading-indicator">
+                        <i class="fas fa-spinner fa-spin"></i> Loading routes...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initMap" async defer></script>
+    <script src="/js/routes.js"></script>
+</body>
+</html>
