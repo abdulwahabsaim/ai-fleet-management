@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Maintenance Management | AI Fleet Management</title>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/dashboard" class="sidebar-menu-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/vehicles" class="sidebar-menu-item">
+                    <i class="fas fa-car"></i> Vehicles
+                </a>
+                <a href="/routes" class="sidebar-menu-item">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/trips" class="sidebar-menu-item">
+                    <i class="fas fa-map-marked-alt"></i> Trips
+                </a>
+                <a href="/maintenance" class="sidebar-menu-item active">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="/drivers" class="sidebar-menu-item">
+                    <i class="fas fa-user"></i> Drivers
+                </a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/auth/register" class="sidebar-menu-item">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
+                <% } %>
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Maintenance Management
+            </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-tools"></i> Maintenance Management</h1>
+            <p class="page-subtitle">Track and schedule vehicle maintenance</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Maintenance Schedule</h2>
+                <button class="btn btn--primary">
+                    <i class="fas fa-plus"></i> Schedule Maintenance
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Cost</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Toyota Corolla (ABC-123)</td>
+                                <td>Oil Change</td>
+                                <td>Aug 15, 2023</td>
+                                <td><span class="status-indicator status-indicator--active">Completed</span></td>
+                                <td>$45.00</td>
+                                <td>
+                                    <button class="btn btn--secondary btn--sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn--error btn--sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Honda Civic (XYZ-789)</td>
+                                <td>Tire Rotation</td>
+                                <td>Sep 5, 2023</td>
+                                <td><span class="status-indicator status-indicator--in-maintenance">Scheduled</span></td>
+                                <td>$30.00</td>
+                                <td>
+                                    <button class="btn btn--secondary btn--sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn--error btn--sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ford Focus (DEF-456)</td>
+                                <td>Full Service</td>
+                                <td>Oct 12, 2023</td>
+                                <td><span class="status-indicator status-indicator--inactive">Pending</span></td>
+                                <td>$250.00</td>
+                                <td>
+                                    <button class="btn btn--secondary btn--sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn--error btn--sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Maintenance History</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <h3 class="chart-title">Maintenance Costs by Vehicle</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="maintenanceCostChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize maintenance cost chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('maintenanceCostChart');
+            if (ctx) {
+                const maintenanceCostChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Toyota Corolla', 'Honda Civic', 'Ford Focus'],
+                        datasets: [{
+                            label: 'Maintenance Cost ($)',
+                            data: [150, 75, 250],
+                            backgroundColor: [
+                                'rgba(255, 87, 34, 0.7)',
+                                'rgba(255, 193, 7, 0.7)',
+                                'rgba(156, 39, 176, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                                labels: {
+                                    color: '#e0e0e0'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#e0e0e0'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#e0e0e0'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

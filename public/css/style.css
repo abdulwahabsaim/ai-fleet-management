@@ -1019,6 +1019,102 @@ select.form-input {
   font-size: 0.75rem;
 }
 
+/* Performance Bar */
+.performance-bar {
+  width: 100%;
+  height: 20px;
+  background-color: var(--bg-input-dark);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.performance-fill {
+  height: 100%;
+  background-color: var(--primary);
+  text-align: center;
+  line-height: 20px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: var(--bg-input-dark);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--success);
+  text-align: center;
+  line-height: 20px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Leaflet Map Markers */
+.custom-map-marker {
+  background-color: transparent;
+  border: none;
+}
+
+.marker-inner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Notifications */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  background-color: var(--bg-card-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  transform: translateX(110%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+}
+
+.notification-content i {
+  margin-right: 10px;
+  font-size: 1.25rem;
+}
+
+.notification--success i {
+  color: var(--success);
+}
+
+.notification--error i {
+  color: var(--danger);
+}
+
+.notification--warning i {
+  color: var(--warning);
+}
+
+.notification--info i {
+  color: var(--info);
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .sidebar {

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Trip Management | AI Fleet Management</title>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard" class="sidebar-brand">
+                <i class="fas fa-car"></i> AI Fleet Manager
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <% if (isAuthenticated) { %>
+                <a href="/dashboard" class="sidebar-menu-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/vehicles" class="sidebar-menu-item">
+                    <i class="fas fa-car"></i> Vehicles
+                </a>
+                <a href="/routes" class="sidebar-menu-item">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/trips" class="sidebar-menu-item active">
+                    <i class="fas fa-map-marked-alt"></i> Trips
+                </a>
+                <a href="/maintenance" class="sidebar-menu-item">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="/drivers" class="sidebar-menu-item">
+                    <i class="fas fa-user"></i> Drivers
+                </a>
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/users" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/auth/register" class="sidebar-menu-item">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
+                <% } %>
+                <a href="/auth/logout" class="sidebar-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-brand">
+                Trip Management
+            </div>
+            <div class="nav-links">
+                <% if (isAuthenticated && user) { %>
+                    <span><i class="fas fa-user"></i> <%= user.username %> (<%= user.role %>)</span>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-map-marked-alt"></i> Trip Management</h1>
+            <p class="page-subtitle">Plan and track fleet trips</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Active Trips</h2>
+                <button class="btn btn--primary">
+                    <i class="fas fa-plus"></i> Create New Trip
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Trip ID</th>
+                                <th>Vehicle</th>
+                                <th>Driver</th>
+                                <th>Start Time</th>
+                                <th>Est. End Time</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>TRIP-20230815-001</td>
+                                <td>Toyota Corolla (ABC-123)</td>
+                                <td>John Smith</td>
+                                <td>Aug 15, 2023 09:00</td>
+                                <td>Aug 15, 2023 12:30</td>
+                                <td><span class="status-indicator status-indicator--on-trip">In Progress</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 65%;">65%</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn--secondary btn--sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn--error btn--sm">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TRIP-20230815-002</td>
+                                <td>Honda Civic (XYZ-789)</td>
+                                <td>Jane Doe</td>
+                                <td>Aug 15, 2023 10:15</td>
+                                <td>Aug 15, 2023 14:45</td>
+                                <td><span class="status-indicator status-indicator--on-trip">In Progress</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 30%;">30%</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn--secondary btn--sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn--error btn--sm">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Trip History</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Trip ID</th>
+                                <th>Vehicle</th>
+                                <th>Driver</th>
+                                <th>Date</th>
+                                <th>Duration</th>
+                                <th>Distance</th>
+                                <th>Fuel Used</th>
+                                <th>Efficiency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>TRIP-20230814-003</td>
+                                <td>Toyota Corolla (ABC-123)</td>
+                                <td>John Smith</td>
+                                <td>Aug 14, 2023</td>
+                                <td>3h 15m</td>
+                                <td>145 km</td>
+                                <td>12.5 L</td>
+                                <td>
+                                    <div class="performance-bar">
+                                        <div class="performance-fill" style="width: 85%;">85%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TRIP-20230813-002</td>
+                                <td>Honda Civic (XYZ-789)</td>
+                                <td>Jane Doe</td>
+                                <td>Aug 13, 2023</td>
+                                <td>2h 45m</td>
+                                <td>120 km</td>
+                                <td>9.8 L</td>
+                                <td>
+                                    <div class="performance-bar">
+                                        <div class="performance-fill" style="width: 92%;">92%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TRIP-20230812-001</td>
+                                <td>Ford Focus (DEF-456)</td>
+                                <td>Robert Johnson</td>
+                                <td>Aug 12, 2023</td>
+                                <td>4h 30m</td>
+                                <td>210 km</td>
+                                <td>18.2 L</td>
+                                <td>
+                                    <div class="performance-bar">
+                                        <div class="performance-fill" style="width: 78%;">78%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

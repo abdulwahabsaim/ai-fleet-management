@@ -5,10 +5,8 @@ const { ensureAuthenticated } = require('../middleware/authMiddleware');
 
 // Route management page
 router.get('/', ensureAuthenticated, (req, res) => {
-    const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || '';
     res.render('routes/index', {
-        title: 'Route Management',
-        googleMapsApiKey
+        title: 'Route Management'
     });
 });
 

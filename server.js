@@ -141,12 +141,18 @@ const vehicleRoutes = require('./routes/vehicleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const routeRoutes = require('./routes/routeRoutes');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const driverRoutes = require('./routes/driverRoutes');
+const tripRoutes = require('./routes/tripRoutes');
 
 // Use Routes
 app.use('/auth', authRoutes);
 app.use('/vehicles', vehicleRoutes);
 app.use('/admin', adminRoutes);
 app.use('/routes', routeRoutes);
+app.use('/maintenance', maintenanceRoutes);
+app.use('/drivers', driverRoutes);
+app.use('/trips', tripRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Home route - redirect to login or dashboard if already logged in
